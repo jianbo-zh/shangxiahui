@@ -1,5 +1,6 @@
-
+<div class="sidebar">
 <ul>
-	<li><a href="<?php base_url('admin/event/add_event');?>">新增事件</a></li>
-	<li><a href="<?php base_url('admin/event/show_event');?>">事件列表</a></li>
+	<li><a href="<?php echo base_url('admin/event/add_subject');?>">鏂板浜嬩欢</a></li>
+	<li><a href="<?php echo base_url('admin/event/subject_list');?>">浜嬩欢鍒楄〃</a></li>
 </ul>
+</div>

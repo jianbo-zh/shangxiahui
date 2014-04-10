@@ -6,7 +6,7 @@
 		private $errmsg = array();
 		
 		/**
-		 * ĞÂÔöÒ»¸öÖ÷Ìâ
+		 * æ–°å¢ä¸€ä¸ªä¸»é¢˜
 		 * @param array $event
 		 * @return boolean
 		 */
@@ -21,7 +21,7 @@
 			}
 			$e['prev_eid'] = 0;
 			$e['subject_id'] = $subject_id;
-			$e['event_time'] = $event['time'];
+			$e['event_time'] = $event['event_time'];
 			$e['edit_time'] = time();
 			$e['user_id'] = $event['user_id'];
 			$e['type'] = $event['type'];
@@ -34,12 +34,12 @@
 			{
 				return $this->db->insert_id();
 			}
-			$this->set_error('ĞÂÔöÊÂ¼şÊ§°Ü£¬sql:' . $this->db->last_query());
+			$this->set_error('æ–°å¢äº‹ä»¶å¤±è´¥ï¼Œsql:' . $this->db->last_query());
 			return false;
 		}
 		
 		/**
-		 * ¸øÒ»¸öÖ÷Ìâ×·¾¿Ò»¸öÊÂ¼ş
+		 * ç»™ä¸€ä¸ªä¸»é¢˜è¿½ç©¶ä¸€ä¸ªäº‹ä»¶
 		 * @param unknown $event
 		 * @return boolean
 		 */
@@ -52,7 +52,7 @@
 							empty($event['title']) or 
 								empty($event['summary']))
 			{
-				$this->set_error('Ìí¼ÓÒ»¸ö×·×ÙÄÚÈİÊ§°Ü£¬ÊÂ¼şÄÚÈİ²»È«!');
+				$this->set_error('æ·»åŠ ä¸€ä¸ªè¿½è¸ªå†…å®¹å¤±è´¥ï¼Œäº‹ä»¶å†…å®¹ä¸å…¨!');
 				return false;
 			}
 			$subject_id = $event['subject_id'];
@@ -86,19 +86,108 @@
 				return true;
 			}
 			
-			$this->set_error('Ìí¼Ó×·×ÙÊÂ¼şÊ§°Ü£¬sql:' . $this->db->last_query());
+			$this->set_error('æ·»åŠ è¿½è¸ªäº‹ä»¶å¤±è´¥ï¼Œsql:' . $this->db->last_query());
 			
 			return true;
 		}
 		
-		public function del_event($event_id)
+		public function mod_event($event_id, $event)
 		{
-			$this->db->delect($this->table, array('id'=>$event_id));
+			if(empty($event['title']) or 
+				empty($event['summary']) or 
+					empty($event['event_time']) or 
+						empty($event['type']))
+			{
+				return false;
+			}
+			$e = array();
+			$e['title'] = $event['title'];
+			$e['summary'] = $event['summary'];
+			$e['type'] = $event['type'];
+			$event_time = $event['event_time'];
+			
+			$cur_event = $this->get_event_by_id($event_id);
+			
+			if($cur_event['event_time'] == $event_time)
+			{
+				$this->db->update($this->table, $e, array('id'=>$event_id));
+			}
+			else 
+			{
+
+				$e['event_time'] = $event_time;
+				// æ›´æ–°è‡ªå·±æ—¶é—´
+				$this->db->update($this->table, $e, array('id'=>$event_id));
+				
+				// åç»§
+				$old_next_event = $this->get_next_event($event_id);
+				
+				if($old_next_event)
+				{
+					$this->set_event_prev_id($old_next_event['id'], $cur_event['prev_eid']);
+				}
+				
+				$new_prev_event = $this->_get_prev_event_by_time($event_time);
+				$new_next_event = $this->_get_next_event_by_time($event_time);
+				
+				if($new_prev_event)
+				{
+					$prev_eid = $new_prev_event['id'];
+				}
+				else 
+				{
+					$prev_eid = 0;
+				}
+
+
+				// æ›´æ–°è‡ªå·±
+				$this->db->update($this->table, array('prev_eid'=>$prev_eid), array('id'=>$event_id));
+				
+				if($new_next_event)
+				{
+					$this->set_event_prev_id($new_next_event['id'], $event_id);
+				}
+
+			}
+		}
+		
+		/**
+		 * åˆ é™¤ä¸»é¢˜
+		 * @param number $subject_id
+		 * @return boolean
+		 */
+		public function del_subject($subject_id)
+		{
+			
+			$this->db->delete($this->table, array('subject_id'=>$subject_id));
+			
 			if($this->db->affected_rows() > 0)
 			{
 				return true;
 			}
-			$this->set_error('É¾³ıÊÂ¼şÊ§°Ü, sql:' . $this->db->last_query());
+			else
+			{
+				$this->set_error('åˆ é™¤äº‹ä»¶å¤±è´¥, sql:' . $this->db->last_query());
+				return false;
+			}
+		}
+		
+		public function del_event($event_id)
+		{
+			$cur_event = $this->get_event_by_id($event_id);
+			
+			$this->db->delete($this->table, array('id'=>$event_id));
+			if($this->db->affected_rows() > 0)
+			{
+				$next_event = $this->get_next_event($event_id);
+				if($next_event)
+				{
+					$this->set_event_prev_id($next_event['id'], $cur_event['prev_eid']);
+				}
+				return true;
+			}
+			
+			$this->set_error('åˆ é™¤äº‹ä»¶å¤±è´¥, sql:' . $this->db->last_query());
 			return false;
 		}
 		
@@ -109,13 +198,13 @@
 			{
 				return true;
 			}
-			$this->set_error('ĞŞ¸ÄÊÂ¼şÇ°Ò»¸öÊÂ¼şIDÊ§°Ü, sql:' . $this->db->last_query());
+			$this->set_error('ä¿®æ”¹äº‹ä»¶å‰ä¸€ä¸ªäº‹ä»¶IDå¤±è´¥, sql:' . $this->db->last_query());
 			return false;
 		}
 		
 		
 		/**
-		 * »ñÈ¡¸ÃÖ÷ÌâµÄÉÏÒ»´Î·¢ÉúµÄÊÂ¼şID
+		 * è·å–è¯¥ä¸»é¢˜çš„ä¸Šä¸€æ¬¡å‘ç”Ÿçš„äº‹ä»¶ID
 		 * @param unknown $subject_id
 		 * @return unknown|boolean
 		 */
@@ -133,8 +222,8 @@
 		}
 		
 		/**
-		 * »ñÈ¡Ò»¸öÊÂ¼ş
-		 * @param number $event_id µ±Ç°ÊÂ¼şID
+		 * è·å–ä¸€ä¸ªäº‹ä»¶
+		 * @param number $event_id å½“å‰äº‹ä»¶ID
 		 * @return array|boolean
 		 */
 		public function get_next_event($event_id)
@@ -145,13 +234,13 @@
 				return $row = $resutl->row_array();
 				
 			}
-			$this->set_error('»ñÈ¡ÏÂÒ»ÌõÊÂ¼şÊ§°Ü, sql:' . $this->db->last_query());
+			$this->set_error('è·å–ä¸‹ä¸€æ¡äº‹ä»¶å¤±è´¥, sql:' . $this->db->last_query());
 			
 			return false;
 		}
 		
 		/**
-		 * »ñÈ¡ÉÏÒ»Ìõ¼ÇÂ¼ĞÅÏ¢
+		 * è·å–ä¸Šä¸€æ¡è®°å½•ä¿¡æ¯
 		 * @param number $event_id
 		 * @return array|boolean
 		 */
@@ -167,13 +256,13 @@
 			{
 				return $result->row_array();
 			}
-			$this->set_error('»ñÈ¡ÉÏÒ»ÌõÊÂ¼şÊ§°Ü, sql:' . $this->db->last_query());
+			$this->set_error('è·å–ä¸Šä¸€æ¡äº‹ä»¶å¤±è´¥, sql:' . $this->db->last_query());
 			
 			return false;
 		}
 		
 		/**
-		 * »ñÈ¡ÊÂ¼şĞÅÏ¢
+		 * è·å–äº‹ä»¶ä¿¡æ¯
 		 * @param number $event_id
 		 * @return array|boolean
 		 */
@@ -186,13 +275,13 @@
 				return $result->row_array();
 			}
 			
-			$this->set_error('»ñÈ¡ÊÂ¼şÊ§°Ü, sql:' . $this->db->last_query());
+			$this->set_error('è·å–äº‹ä»¶å¤±è´¥, sql:' . $this->db->last_query());
 			
 			return false;
 		}
 		
 		/**
-		 * Éú³ÉÖ÷ÌâID£¬³É¹¦Ôò·µ»ØÖ÷ÌâID,Ê§°ÜÔò·µ»Øfalse
+		 * ç”Ÿæˆä¸»é¢˜IDï¼ŒæˆåŠŸåˆ™è¿”å›ä¸»é¢˜ID,å¤±è´¥åˆ™è¿”å›false
 		 * @return number|boolean
 		 */
 		public function generate_subject_id()
@@ -204,12 +293,12 @@
 				$row = $result->row_array();
 				return $row['max_subject'] + 1;
 			}
-			$this->set_error('Éú³ÉÖ÷ÌâIDÊ§°Ü£¬sql:'.$this->db->last_query());
+			$this->set_error('ç”Ÿæˆä¸»é¢˜IDå¤±è´¥ï¼Œsql:'.$this->db->last_query());
 			return false;
 		}
 		
 		/**
-		 * ²éÑ¯ÊÂ¼ş
+		 * è·å–ä¸»é¢˜ç³»åˆ—
 		 * @param string $type
 		 * @param string $limit
 		 * @param string $offset
@@ -218,10 +307,12 @@
 		 * @param string $search_title
 		 * @return array
 		 */
-		public function get_events($type=null, $limit=null, $offset=null, 
+		public function get_subjects($type=null, $limit=null, $offset=null, 
 										$start_time=null, $end_time=null, 
 											$search_title=null)
 		{
+			
+			$this->db->where('prev_eid', 0);
 			
 			if($type)
 			{
@@ -229,7 +320,7 @@
 			}
 			if($limit)
 			{
-				$this->db->where('limit', $limit);
+				$this->db->limit($limit);
 			}
 			if($offset)
 			{
@@ -245,10 +336,55 @@
 			}
 			if($search_title)
 			{
-				$this->db->like('event_time', $search_title, 'both');
+				$this->db->like('title', $search_title, 'both');
 			}
 			
-			$this->db->order_by('event_time', 'desc');
+			$this->db->order_by('event_time', 'asc');
+			
+			$result = $this->db->get($this->table);
+			
+			return $result->result_array();
+		}
+		
+		/**
+		 * è·å–ä¸»é¢˜äº‹ä»¶ç³»åˆ—
+		 * @param number $subject_id
+		 * @param string $limit
+		 * @param string $offset
+		 * @param string $start_time
+		 * @param string $end_time
+		 * @param string $search_title
+		 * @return array
+		 */
+		public function get_subject($subject_id, $limit=null, $offset=null, 
+										$start_time=null, $end_time=null, 
+											$search_title=null)
+		{
+			
+			$this->db->where('subject_id', $subject_id);
+
+			if($limit)
+			{
+				$this->db->limit($limit);
+			}
+			if($offset)
+			{
+				$this->db->where('offset', $offset);
+			}
+			if($start_time)
+			{
+				$this->db->where('event_time >=', $start_time);
+			}
+			if($end_time)
+			{
+				$this->db->where('event_time <', $end_time);
+			}
+			if($search_title)
+			{
+				$this->db->like('title', $search_title, 'both');
+			}
+			
+			$this->db->order_by('event_time', 'asc');
 			
 			$result = $this->db->get($this->table);
 			
@@ -256,7 +392,7 @@
 		}
 
 		/**
-		 * Í¨¹ıÊÂ¼şÊ±¼ä»ñÈ¡ÉÏÒ»¸öÊÂ¼ş
+		 * é€šè¿‡äº‹ä»¶æ—¶é—´è·å–ä¸Šä¸€ä¸ªäº‹ä»¶
 		 * @param string $event_time
 		 * @return array|boolean
 		 */
@@ -270,19 +406,19 @@
 				return $result->row_array();
 			}
 				
-			$this->set_error('Í¨¹ıÊÂ¼şÊ±¼ä»ñÈ¡ÉÏÒ»ÌõÊÂ¼şÊ§°Ü, sql:' . $this->db->last_query());
+			$this->set_error('é€šè¿‡äº‹ä»¶æ—¶é—´è·å–ä¸Šä¸€æ¡äº‹ä»¶å¤±è´¥, sql:' . $this->db->last_query());
 				
 			return false;
 		}
 		
 		/**
-		 * Í¨¹ıÊÂ¼ş»ñÈ¡ÏÂÒ»¸öÊÂ¼ş
+		 * é€šè¿‡äº‹ä»¶è·å–ä¸‹ä¸€ä¸ªäº‹ä»¶
 		 * @param string $event_time
 		 * @return array|boolean
 		 */
 		private function _get_next_event_by_time($event_time)
 		{
-			$this->db->where('event_time >=', $event_time);
+			$this->db->where('event_time >', $event_time);
 			$this->db->order_by('event_time', 'asc');
 			$result = $this->db->get($this->table);
 			if($result->num_rows() > 0)
@@ -290,13 +426,13 @@
 				return $result->row_array();
 			}
 				
-			$this->set_error('Í¨¹ıÊÂ¼şÊ±¼ä»ñÈ¡ÏÂÒ»ÌõÊÂ¼şÊ§°Ü, sql:' . $this->db->last_query());
+			$this->set_error('é€šè¿‡äº‹ä»¶æ—¶é—´è·å–ä¸‹ä¸€æ¡äº‹ä»¶å¤±è´¥, sql:' . $this->db->last_query());
 				
 			return false;
 		}
 		
 		/**
-		 * ÉèÖÃ´íÎóÏûÏ¢
+		 * è®¾ç½®é”™è¯¯æ¶ˆæ¯
 		 * @param string $err_msg
 		 */
 		public function set_error($err_msg)
@@ -305,7 +441,7 @@
 		}
 		
 		/**
-		 * ·µ»Ø´íÎóÏûÏ¢
+		 * è¿”å›é”™è¯¯æ¶ˆæ¯
 		 * @return string
 		 */
 		public function get_error()

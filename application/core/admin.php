@@ -3,13 +3,13 @@
 	abstract class Admin extends CI_Controller {
 		
 		/**
-		 * ÑéÖ¤ÊÇ·ñµÇÂ¼
+		 * éªŒè¯æ˜¯å¦ç™»å½•
 		 */
 		public function __construct()
 		{
 			parent::__construct();
 			
-			// ÈçÃ»ÓĞµÇÂ¼
+			// å¦‚æ²¡æœ‰ç™»å½•
 			if(false)
 			{
 				header('Location: ' . base_url('admin/login/login'));
@@ -18,24 +18,25 @@
 		}
 		
 		/**
-		 * Õ¹Ê¾Í·ĞÅÏ¢
+		 * å±•ç¤ºå¤´ä¿¡æ¯
 		 */
 		public function header()
 		{
-			
+			$this->load->helper('url');
+			$this->load->view('admin/header');
 		}
 		
 		
 		/**
-		 * Õ¹Ê¾Î²ĞÅÏ¢
+		 * å±•ç¤ºå°¾ä¿¡æ¯
 		 */
 		public function footer()
 		{
-			
+			$this->load->view('admin/footer');
 		}
 		
 		/**
-		 * Õ¹Ê¾Ê×Ò³
+		 * å±•ç¤ºé¦–é¡µ
 		 */
 		public function index()
 		{
@@ -46,12 +47,12 @@
 		}
 
 		/**
-		 * Õ¹Ê¾²à±ßÀ¸
+		 * å±•ç¤ºä¾§è¾¹æ 
 		 */
 		abstract public function sidebar();
 		
 		/**
-		 * ÏÔÊ¾Ö÷ÄÚÈİÇø
+		 * æ˜¾ç¤ºä¸»å†…å®¹åŒº
 		 */
 		abstract public function main();
 	}
