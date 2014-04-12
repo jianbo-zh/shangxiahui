@@ -30,16 +30,11 @@
 				<td><?=date('Y-m-d H:i:s', $event['event_time']);?></td>
 				<td><a
 					href="<?php echo base_url('admin/event/subject_detail/'.$event['subject_id']);?>">详细</a>
-					/ <a
-					href="<?php echo base_url('admin/event/track_subject/'.$event['subject_id']);?>">追加</a>
 					/ <a href="javascript:void(0);" class="del_event"
 					rel_id="<?php echo $event['subject_id']?>">删除</a></td>
 			</tr>
 		<?php endforeach;?>
 	</table>
-	</div>
-	<div class="track_event">
-		<a href="javascript:void(0);" class="track_event">跟进事件</a>
 	</div>
 </div>
 
@@ -47,12 +42,20 @@
 	$('.del_event').click(function(){
 		id = $(this).attr('rel_id');
 		$.ajax({
-			url : <?php echo base_url('admin/event/ajax_del_subject')?>,
+			url : '<?php echo base_url('admin/event/ajax_del_subject')?>',
 			data : {
 				id : id
-			}
+			},
+			dataType : 'json',
 			success : function(response){
-				alert(response.message);
+				if(response.status == 'succ')
+				{
+					alert("删除成功！");
+				}
+				else
+				{
+					alert("删除失败");
+				}
 			}
 		});
 	});

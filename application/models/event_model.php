@@ -58,7 +58,7 @@
 			$subject_id = $event['subject_id'];
 			$e = array();
 			
-			$prev_event = $this->_get_prev_event_by_time($event['event_time']);
+			$prev_event = $this->get_prev_event_by_time($subject_id, $event['event_time']);
 			$e['prev_eid'] = $prev_event ? $prev_event['id'] : 0;
 			
 			$e['subject_id'] = $subject_id;
@@ -74,7 +74,7 @@
 			{
 				$insert_id = $this->db->insert_id();
 
-				$next_event = $this->_get_next_event_by_time($event['event_time']);
+				$next_event = $this->get_next_event_by_time($subject_id, $event['event_time']);
 				if($next_event)
 				{
 					if( ! $this->set_event_prev_id($next_event['id'], $insert_id))
@@ -104,6 +104,7 @@
 			$e['title'] = $event['title'];
 			$e['summary'] = $event['summary'];
 			$e['type'] = $event['type'];
+			
 			$event_time = $event['event_time'];
 			
 			$cur_event = $this->get_event_by_id($event_id);
@@ -127,8 +128,8 @@
 					$this->set_event_prev_id($old_next_event['id'], $cur_event['prev_eid']);
 				}
 				
-				$new_prev_event = $this->_get_prev_event_by_time($event_time);
-				$new_next_event = $this->_get_next_event_by_time($event_time);
+				$new_prev_event = $this->get_prev_event_by_time($cur_event['subject_id'], $event_time);
+				$new_next_event = $this->get_next_event_by_time($cur_event['subject_id'], $event_time);
 				
 				if($new_prev_event)
 				{
@@ -396,8 +397,9 @@
 		 * @param string $event_time
 		 * @return array|boolean
 		 */
-		private function _get_prev_event_by_time($event_time)
+		public function get_prev_event_by_time($subject_id, $event_time)
 		{
+			$this->db->where('subject_id', $subject_id);
 			$this->db->where('event_time <', $event_time);
 			$this->db->order_by('event_time', 'desc');
 			$result = $this->db->get($this->table);
@@ -416,8 +418,9 @@
 		 * @param string $event_time
 		 * @return array|boolean
 		 */
-		private function _get_next_event_by_time($event_time)
+		public function get_next_event_by_time($subject_id, $event_time)
 		{
+			$this->db->where('subject_id', $subject_id);
 			$this->db->where('event_time >', $event_time);
 			$this->db->order_by('event_time', 'asc');
 			$result = $this->db->get($this->table);

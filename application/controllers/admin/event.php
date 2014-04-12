@@ -18,15 +18,11 @@
 		
 		public function main()
 		{
-			
+			$this->show_subjects();
 		}
 		
-		public function track_subject()
+		public function ajax_track_subject()
 		{
-			$subject_id = $this->uri->segment(4);
-			$this->header();
-			$this->sidebar();
-			$this->load->helper('url');
 			$this->load->library('form_validation');
 			$this->form_validation->set_rules('title', '标题名', 'trim|required|max_length[20]|xss_clean');
 			$this->form_validation->set_rules('summary', '摘要', 'trim|required|max_length[100]|xss_clean');
@@ -34,24 +30,26 @@
 			if($this->form_validation->run())
 			{
 				$event = array();
-				$event['prev_eid'] = 0;
-				$event['event_time'] = strtotime($this->input->post('event_time'));
-				// 管理员ID
 				$event['user_id'] = 1;
+				$event['event_time'] = strtotime($this->input->post('event_time'));
+				$event['subject_id'] = $this->input->post('subject_id');
 				$event['type'] = $this->input->post('type');
 				$event['title'] = $this->input->post('title');
 				$event['summary'] = $this->input->post('summary');
 			
-				if($this->event->add_event($event))
+				if($this->event->track_event($event))
 				{
-					$this->load->view('admin/event/add_success');
+					echo json_encode(array('status'=>'succ', 'message'=>'追加成功！'));
+				}
+				else 
+				{
+					echo json_encode(array('status'=>'fail', 'message'=>'追加失败！'));
 				}
 			}
 			else 
 			{
-				$this->load->view('admin/event/track_subject', array('subject_id'=>$subject_id));
+				echo json_encode(array('status'=>'fail', 'message'=>'验证失败！' . $this->form_validation->error_string()));
 			}
-			$this->footer();
 		}
 		
 		public function add_subject()
@@ -85,6 +83,41 @@
 			}
 			$this->footer();
 		}
+		
+		/*
+		public function ajax_add_subject()
+		{
+			$this->load->library('form_validation');
+			$this->form_validation->set_rules('title', '标题名', 'trim|required|max_length[20]|xss_clean');
+			$this->form_validation->set_rules('summary', '摘要', 'trim|required|max_length[100]|xss_clean');
+			$this->form_validation->set_rules('event_time', '事件时间', 'trim|required|callback_check_time');
+			if($this->form_validation->run())
+			{
+				$event = array();
+				$event['prev_eid'] = 0;
+				$event['event_time'] = strtotime($this->input->post('event_time'));
+				// 管理员ID
+				$event['user_id'] = 1;
+				$event['type'] = $this->input->post('type');
+				$event['title'] = $this->input->post('title');
+				$event['summary'] = $this->input->post('summary');
+			
+				if($this->event->add_event($event))
+				{
+					echo json_encode(array('status'=>'succ', 'message'=>'新增成功！'));
+				}
+				else 
+				{
+					echo json_encode(array('status'=>'fail', 'message'=>'新增失败！'));
+				}
+			}
+			else
+			{
+				echo json_encode(array('status'=>'fail', 'message'=>'验证失败！' . $this->form_validation->error_string()));
+			}
+			exit;
+		}
+		*/
 		
 		public function mod_event()
 		{
@@ -124,8 +157,8 @@
 		
 		public function ajax_del_subject()
 		{
-			$subject_id = $this->uri->segment(4);
-			
+			//$subject_id = $this->uri->segment(4);
+			$subject_id = $this->input->get('id');
 			$result = $this->event->del_subject($subject_id);
 			if($result)
 			{
@@ -140,7 +173,8 @@
 		
 		public function ajax_del_event()
 		{
-			$id = $this->uri->segment(4);
+			//$id = $this->uri->segment(4);
+			$id = $this->input->get('id');
 			
 			$result = $this->event->del_event($id);
 			if($result)
