@@ -18,7 +18,7 @@
 		public function __construct($xml_obj)
 		{
 			$this->set_to_user_name($xml_obj->ToUserName);
-			$this->set_from_user_name($xml_obj->FormUserName);
+			$this->set_from_user_name($xml_obj->FromUserName);
 			$this->set_create_time($xml_obj->CreateTime);
 			$this->set_msg_type($xml_obj->MsgType);
 			$this->set_event($xml_obj->Event);
@@ -55,7 +55,7 @@
 		
 		public function set($property, $value)
 		{
-			$this->$property = strtolower($value);
+			$this->$property = $value;
 			return $this;
 		}
 		
@@ -74,6 +74,7 @@
 		public function __construct($xml_obj)
 		{
 			parent::__construct($xml_obj);
+			
 			if(isset($xml_obj->EventKey))
 			{
 				$this->set_event_key($xml_obj->EventKey);

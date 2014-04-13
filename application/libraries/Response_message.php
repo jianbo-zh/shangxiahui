@@ -63,20 +63,20 @@
 	 */
 	class Text_response_message extends Response_message {
 		
-		const msg_type = 'text';
+		protected $msg_type = 'text';
 		protected $content;
 
 		
 		public function get_output()
 		{
 			$template = <<<"EOD"
-		<xml>
-		<ToUserName><![CDATA[{$this->get_to_user_name()}]]></ToUserName>
-		<FromUserName><![CDATA[{$this->get_from_user_name()}]]></FromUserName>
-		<CreateTime>{$this->get_create_time()}</CreateTime>
-		<MsgType><![CDATA[{self::msg_type}]]></MsgType>
-		<Content><![CDATA[{$this->get_content()}]]></Content>
-		</xml>
+<xml>
+<ToUserName><![CDATA[{$this->get_to_user_name()}]]></ToUserName>
+<FromUserName><![CDATA[{$this->get_from_user_name()}]]></FromUserName>
+<CreateTime>{$this->get_create_time()}</CreateTime>
+<MsgType><![CDATA[{$this->get_msg_type()}]]></MsgType>
+<Content><![CDATA[{$this->get_content()}]]></Content>
+</xml>
 EOD;
 			return $template;
 		}
@@ -90,22 +90,22 @@ EOD;
 	 */
 	class Image_response_message extends Response_message {
 		
-		const msg_type = 'image';
+		protected $msg_type = 'image';
 		protected $media_id;
 
 		
 		public function get_output()
 		{
 			$template = <<<"EOD"
-		<xml>
-		<ToUserName><![CDATA[{$this->get_to_user_name()}]]></ToUserName>
-		<FromUserName><![CDATA[$this->get_from_user_name()}]]></FromUserName>
-		<CreateTime>{$this->get_create_time()}</CreateTime>
-		<MsgType><![CDATA[{self::msg_type}]]></MsgType>
-		<Image>
-		<MediaId><![CDATA[{$this->get_media_id()}]]></MediaId>
-		</Image>
-		</xml>
+<xml>
+<ToUserName><![CDATA[{$this->get_to_user_name()}]]></ToUserName>
+<FromUserName><![CDATA[$this->get_from_user_name()}]]></FromUserName>
+<CreateTime>{$this->get_create_time()}</CreateTime>
+<MsgType><![CDATA[{$this->get_msg_type()}]]></MsgType>
+<Image>
+<MediaId><![CDATA[{$this->get_media_id()}]]></MediaId>
+</Image>
+</xml>
 EOD;
 			return $template;
 		}
@@ -118,22 +118,22 @@ EOD;
 	 */
 	class Voice_response_message extends Response_message {
 
-		const msg_type = 'voice';
+		protected $msg_type = 'voice';
 		protected $media_id;
 
 		
 		public function get_output()
 		{
 			$template = <<<"EOD"
-		<xml>
-		<ToUserName><![CDATA[$this->get_to_user_name()}]]></ToUserName>
-		<FromUserName><![CDATA[$this->get_from_user_name()}]]></FromUserName>
-		<CreateTime>{$this->get_create_time()}</CreateTime>
-		<MsgType><![CDATA[{self::msg_type}]]></MsgType>
-		<Voice>
-		<MediaId><![CDATA[{$this->get_media_id()}]]></MediaId>
-		</Voice>
-		</xml>
+<xml>
+<ToUserName><![CDATA[$this->get_to_user_name()}]]></ToUserName>
+<FromUserName><![CDATA[$this->get_from_user_name()}]]></FromUserName>
+<CreateTime>{$this->get_create_time()}</CreateTime>
+<MsgType><![CDATA[{$this->get_msg_type()}]]></MsgType>
+<Voice>
+<MediaId><![CDATA[{$this->get_media_id()}]]></MediaId>
+</Voice>
+</xml>
 EOD;
 			return $template;
 		}
@@ -146,7 +146,7 @@ EOD;
 	 */
 	class Video_response_message extends Response_message {
 
-		const msg_type = 'video';
+		protected $msg_type = 'video';
 		protected $media_id;
 		protected $title;
 		protected $description;
@@ -155,17 +155,17 @@ EOD;
 		public function get_output()
 		{
 			$template = <<<"EOD"
-		<xml>
-		<ToUserName><![CDATA[$this->get_to_user_name()}]]></ToUserName>
-		<FromUserName><![CDATA[$this->get_from_user_name()}]]></FromUserName>
-		<CreateTime>{$this->get_create_time()}</CreateTime>
-		<MsgType><![CDATA[{self::msg_type}]]></MsgType>
-		<Video>
-		<MediaId><![CDATA[{$this->get_media_id()}]]></MediaId>
-		<Title><![CDATA[{$this->get_title()}]]></Title>
-		<Description><![CDATA[{$this->get_description()}]]></Description>
-		</Video> 
-		</xml>
+<xml>
+<ToUserName><![CDATA[$this->get_to_user_name()}]]></ToUserName>
+<FromUserName><![CDATA[$this->get_from_user_name()}]]></FromUserName>
+<CreateTime>{$this->get_create_time()}</CreateTime>
+<MsgType><![CDATA[{$this->get_msg_type()}]]></MsgType>
+<Video>
+<MediaId><![CDATA[{$this->get_media_id()}]]></MediaId>
+<Title><![CDATA[{$this->get_title()}]]></Title>
+<Description><![CDATA[{$this->get_description()}]]></Description>
+</Video> 
+</xml>
 EOD;
 			return $template;
 		}
@@ -178,7 +178,7 @@ EOD;
 	 */
 	class Music_response_message extends Response_message {
 
-		const msg_type = 'music';
+		protected $msg_type = 'music';
 		protected $title;
 		protected $description;
 		protected $music_url;
@@ -188,19 +188,19 @@ EOD;
 		public function get_output()
 		{
 			$template = <<<"EOD"
-		<xml>
-		<ToUserName><![CDATA[{$this->get_to_user_name()}]]></ToUserName>
-		<FromUserName><![CDATA[{$this->get_from_user_name()}]]></FromUserName>
-		<CreateTime>{$this->get_create_time()}</CreateTime>
-		<MsgType><![CDATA[{self::msg_type}]]></MsgType>
-		<Music>
-		<Title><![CDATA[{$this->get_msg_title()}]]></Title>
-		<Description><![CDATA[{$this->get_description()}]]></Description>
-		<MusicUrl><![CDATA[{$this->get_music_url()}]]></MusicUrl>
-		<HQMusicUrl><![CDATA[{$this->get_hq_music_url()}]]></HQMusicUrl>
-		<ThumbMediaId><![CDATA[{$this->get_thumb_media_id()}]]></ThumbMediaId>
-		</Music>
-		</xml>
+<xml>
+<ToUserName><![CDATA[{$this->get_to_user_name()}]]></ToUserName>
+<FromUserName><![CDATA[{$this->get_from_user_name()}]]></FromUserName>
+<CreateTime>{$this->get_create_time()}</CreateTime>
+<MsgType><![CDATA[{$this->get_msg_type()}]]></MsgType>
+<Music>
+<Title><![CDATA[{$this->get_msg_title()}]]></Title>
+<Description><![CDATA[{$this->get_description()}]]></Description>
+<MusicUrl><![CDATA[{$this->get_music_url()}]]></MusicUrl>
+<HQMusicUrl><![CDATA[{$this->get_hq_music_url()}]]></HQMusicUrl>
+<ThumbMediaId><![CDATA[{$this->get_thumb_media_id()}]]></ThumbMediaId>
+</Music>
+</xml>
 EOD;
 			return $template;
 		}
@@ -213,7 +213,7 @@ EOD;
 	 */
 	class News_response_message extends Response_message {
 
-		const msg_type = 'news';
+		protected $msg_type = 'news';
 	/* 	protected $title;
 		protected $description;
 		protected $url;

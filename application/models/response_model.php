@@ -1,5 +1,5 @@
 <?php
-	require_once(APPPATH . '/Response_message.php');
+	require_once(APPPATH . 'libraries/response_message.php');
 	class Response_model extends CI_Model {
 		
 		public function factory($type, $from, $to)

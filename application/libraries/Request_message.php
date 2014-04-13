@@ -12,7 +12,7 @@
 		public function __construct($xml_obj)
 		{
 			$this->set_to_user_name($xml_obj->ToUserName);
-			$this->set_from_user_name($xml_obj->FormUserName);
+			$this->set_from_user_name($xml_obj->FromUserName);
 			$this->set_create_time($xml_obj->CreateTime);
 			$this->set_msg_type($xml_obj->MsgType);
 		}
@@ -104,6 +104,7 @@
 		protected $format;
 		protected $media_id;
 		protected $msg_id;
+		protected $recongnition;
 		
 		public function __construct($xml_obj)
 		{
@@ -111,6 +112,10 @@
 			$this->set_format($xml_obj->Format);
 			$this->set_media_id($xml_obj->MediaId);
 			$this->set_msg_id($xml_obj->MsgId);
+			if(isset($xml_obj->Recongnition))
+			{
+				$this->set_recongnition($xml_obj->Recongnition);
+			}
 		}
 	}
 	
@@ -151,10 +156,10 @@
 		public function __construct($xml_obj)
 		{
 			parent::__construct($xml_obj);
-			$this->set_pic_url($xml_obj->Location_X);
-			$this->set_pic_url($xml_obj->Location_Y);
-			$this->set_pic_url($xml_obj->Scale);
-			$this->set_pic_url($xml_obj->Label);
+			$this->set_location_x($xml_obj->Location_X);
+			$this->set_location_y($xml_obj->Location_Y);
+			$this->set_scale($xml_obj->Scale);
+			$this->set_label($xml_obj->Label);
 			$this->set_media_id($xml_obj->MediaId);
 			$this->set_msg_id($xml_obj->MsgId);
 		}
@@ -176,9 +181,9 @@
 		public function __construct($xml_obj)
 		{
 			parent::__construct($xml_obj);
-			$this->set_pic_url($xml_obj->Title);
-			$this->set_pic_url($xml_obj->Description);
-			$this->set_pic_url($xml_obj->Url);
+			$this->set_title($xml_obj->Title);
+			$this->set_description($xml_obj->Description);
+			$this->set_url($xml_obj->Url);
 			$this->set_media_id($xml_obj->MediaId);
 			$this->set_msg_id($xml_obj->MsgId);
 		}
